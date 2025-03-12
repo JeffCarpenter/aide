@@ -29,7 +29,20 @@ const BUILD_TARGETS = [
 // The following files do not have PDBs downloaded for them during the download symbols process.
 const excludedCheckList = ['d3dcompiler_47.dll'];
 
-BUILD_TARGETS.forEach(buildTarget => {
+const filteredTargets = BUILD_TARGETS.filter(buildTarget => {
+	if (process.env.PLATFORM && process.env['VSCODE_ARCH']) {
+		return buildTarget.platform === process.env.PLATFORM && buildTarget.arch === process.env['VSCODE_ARCH'];
+	}
+	if (process.env.PLATFORM) {
+		return buildTarget.platform === process.env.PLATFORM;
+	}
+	if (process.env['VSCODE_ARCH']) {
+		return buildTarget.arch === process.env['VSCODE_ARCH'];
+	}
+	return true;
+});
+
+filteredTargets.forEach(buildTarget => {
 	const dashed = (/** @type {string | null} */ str) => (str ? `-${str}` : ``);
 	const platform = buildTarget.platform;
 	const arch = buildTarget.arch;

@@ -476,7 +476,21 @@ const BUILD_TARGETS = [
 	{ platform: 'linux', arch: 'armhf' },
 	{ platform: 'linux', arch: 'arm64' },
 ];
-BUILD_TARGETS.forEach(buildTarget => {
+
+const filteredTargets = BUILD_TARGETS.filter(buildTarget => {
+	if (process.env['VSCODE_PLATFORM'] && process.env['VSCODE_ARCH']) {
+		return buildTarget.platform === process.env['VSCODE_PLATFORM'] && buildTarget.arch === process.env['VSCODE_ARCH'];
+	}
+	if (process.env['VSCODE_PLATFORM']) {
+		return buildTarget.platform === process.env['VSCODE_PLATFORM'];
+	}
+	if (process.env['VSCODE_ARCH']) {
+		return buildTarget.arch === process.env['VSCODE_ARCH'];
+	}
+	return true;
+});
+
+filteredTargets.forEach(buildTarget => {
 	const dashed = (str) => (str ? `-${str}` : ``);
 	const platform = buildTarget.platform;
 	const arch = buildTarget.arch;

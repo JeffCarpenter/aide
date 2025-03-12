@@ -162,7 +162,20 @@ function extractAlpinefromDocker(nodeVersion, platform, arch) {
 
 const { nodeVersion, internalNodeVersion } = getNodeVersion();
 
-BUILD_TARGETS.forEach(({ platform, arch }) => {
+const filteredTargets = BUILD_TARGETS.filter(buildTarget => {
+	if (process.env.PLATFORM && process.env['VSCODE_ARCH']) {
+		return buildTarget.platform === process.env.PLATFORM && buildTarget.arch === process.env['VSCODE_ARCH'];
+	}
+	if (process.env.PLATFORM) {
+		return buildTarget.platform === process.env.PLATFORM;
+	}
+	if (process.env['VSCODE_ARCH']) {
+		return buildTarget.arch === process.env['VSCODE_ARCH'];
+	}
+	return true;
+});
+
+filteredTargets.forEach(({ platform, arch }) => {
 	gulp.task(task.define(`node-${platform}-${arch}`, () => {
 		const nodePath = path.join('.build', 'node', `v${nodeVersion}`, `${platform}-${arch}`);
 
@@ -461,7 +474,7 @@ function tweakProductForServerWeb(product) {
 	));
 	gulp.task(minifyTask);
 
-	BUILD_TARGETS.forEach(buildTarget => {
+	filteredTargets.forEach(buildTarget => {
 		const dashed = (str) => (str ? `-${str}` : ``);
 		const platform = buildTarget.platform;
 		const arch = buildTarget.arch;
