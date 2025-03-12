@@ -1,0 +1,38 @@
+name: NodeJS with Gulp
+
+env:
+  NODE_VERSION: 20
+  VSCODE_PLATFORM: WIN32
+  VSCODE_ARCH: x64
+
+on:
+  push:
+    branches: [ "cs-main" ]
+  pull_request:
+    branches: [ "cs-main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: npm
+        cache-dependency-path: '**\package-lock.json'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build
+      run: gulp
+
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4.6.1
+      with:
+        path: out-build/vs/platform/files/**/*.exe
