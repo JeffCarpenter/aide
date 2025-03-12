@@ -307,7 +307,11 @@ const BUILD_TARGETS = [
 	{ arch: 'arm64' },
 ];
 
-BUILD_TARGETS.forEach(({ arch }) => {
+const filteredTargets = process.env.ARCH ? BUILD_TARGETS.filter(
+	buildTarget => buildTarget.arch === process.env.ARCH
+) : BUILD_TARGETS;
+
+filteredTargets.forEach(({ arch }) => {
 	const debArch = getDebPackageArch(arch);
 	const prepareDebTask = task.define(`vscode-linux-${arch}-prepare-deb`, task.series(rimraf(`.build/linux/deb/${debArch}`), prepareDebPackage(arch)));
 	gulp.task(prepareDebTask);
